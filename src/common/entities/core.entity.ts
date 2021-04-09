@@ -6,15 +6,15 @@ import {
 } from 'typeorm';
 
 export class Core {
-  @Field((type) => Number)
   @PrimaryGeneratedColumn()
+  @Field((type) => Number)
   id: number;
 
-  @Field((type) => Date)
   @CreateDateColumn()
+  @Field((type) => Date)
   createdAt: Date;
 
-  @Field((type) => Date)
   @UpdateDateColumn()
+  @Field((type) => Date)
   updatedAt: Date;
 }
