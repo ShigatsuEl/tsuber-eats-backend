@@ -21,11 +21,11 @@ export class UserResolver {
     @Args('input') createAccountInput: CreateAccountInput,
   ): Promise<CreateAccountOutput> {
     try {
-      const error = await this.userService.createAccount(createAccountInput);
-      if (error) {
-        return { error, ok: false };
-      }
-      return { ok: true };
+      const { ok, error } = await this.userService.createAccount(
+        createAccountInput,
+      );
+
+      return { ok, error };
     } catch (error) {
       return { error, ok: false };
     }
