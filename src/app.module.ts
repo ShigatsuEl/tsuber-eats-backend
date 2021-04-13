@@ -37,7 +37,7 @@ import { UsersModule } from './users/users.module';
       autoSchemaFile: true,
     }),
     CommonModule,
-    JwtModule,
+    JwtModule.forRoot(),
     UsersModule,
   ],
   controllers: [],
