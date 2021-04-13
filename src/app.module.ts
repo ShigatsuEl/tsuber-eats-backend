@@ -20,7 +20,7 @@ import { UsersModule } from './users/users.module';
         DB_PORT: Joi.string().required(),
         DB_USERNAME: Joi.string().required(),
         DB_NAME: Joi.string().required(),
-        SECRET_KEY: Joi.string().required(),
+        PRIVATE_KEY: Joi.string().required(),
       }),
     }),
     TypeOrmModule.forRoot({
@@ -37,7 +37,9 @@ import { UsersModule } from './users/users.module';
       autoSchemaFile: true,
     }),
     CommonModule,
-    JwtModule.forRoot(),
+    JwtModule.forRoot({
+      privateKey: process.env.PRIVATE_KEY,
+    }),
     UsersModule,
   ],
   controllers: [],
