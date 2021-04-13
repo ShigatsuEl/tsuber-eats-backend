@@ -47,8 +47,11 @@ export class UserService {
       if (!passwordCorrect) {
         return { ok: false, error: 'Password does not match' };
       }
-      const token = jwt.sign({ id: user.id }, this.config.get('SECRET_KEY'));
-      return { ok: true, token: 'Success' };
+      const token = jwt.sign(
+        { id: user.id, password: '12345' },
+        this.config.get('SECRET_KEY'),
+      );
+      return { ok: true, token };
     } catch (error) {
       return { ok: false, error };
     }
