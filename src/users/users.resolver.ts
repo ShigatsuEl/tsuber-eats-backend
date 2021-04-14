@@ -1,5 +1,6 @@
 import { UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { AuthUser } from 'src/auth/auth-user.decorator';
 import { AuthGuard } from 'src/auth/auth.guard';
 import {
   CreateAccountInput,
@@ -20,7 +21,9 @@ export class UserResolver {
 
   @Query((returns) => User)
   @UseGuards(AuthGuard)
-  loginUser() {}
+  loginUser(@AuthUser() authUser: User) {
+    return authUser;
+  }
 
   @Mutation((returns) => CreateAccountOutput)
   async createAccount(
