@@ -14,11 +14,6 @@ import { UserService } from './users.service';
 export class UserResolver {
   constructor(private readonly userService: UserService) {}
 
-  @Query((returns) => Boolean)
-  hi() {
-    return true;
-  }
-
   @Query((returns) => User)
   @UseGuards(AuthGuard)
   loginUser(@AuthUser() authUser: User) {
