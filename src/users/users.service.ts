@@ -63,8 +63,8 @@ export class UserService {
 
   async editUserProfile(
     userId: number,
-    { email, password }: EditUserProfileInput,
+    editUserProfileInput: EditUserProfileInput,
   ): Promise<UpdateResult> {
-    return this.users.update(userId, { email, password });
+    return this.users.update(userId, { ...editUserProfileInput });
   }
 }

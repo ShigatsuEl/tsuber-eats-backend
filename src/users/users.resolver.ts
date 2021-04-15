@@ -70,6 +70,7 @@ export class UserResolver {
   ): Promise<EditUserProfileOutput> {
     try {
       await this.userService.editUserProfile(authUser.id, editUserProfileInput);
+      return { ok: true };
     } catch (error) {
       return { error, ok: false };
     }
