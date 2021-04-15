@@ -6,8 +6,15 @@ import {
   CreateAccountInput,
   CreateAccountOutput,
 } from './dtos/create-account.dto';
+import {
+  EditUserProfileInput,
+  EditUserProfileOutput,
+} from './dtos/edit-user-profile.dto';
 import { LoginInput, LoginOutput } from './dtos/login.dto';
-import { UserProfileInput, UserProfileOutput } from './dtos/user-profile.dto';
+import {
+  GetUserProfileInput,
+  GetUserProfileOutput,
+} from './dtos/get-user-profile.dto';
 import { User } from './entities/user.entity';
 import { UserService } from './users.service';
 
@@ -21,11 +28,11 @@ export class UserResolver {
     return authUser;
   }
 
-  @Query((returns) => UserProfileOutput)
+  @Query((returns) => GetUserProfileOutput)
   @UseGuards(AuthGuard)
   async getUserProfile(
-    @Args() userProfileInput: UserProfileInput,
-  ): Promise<UserProfileOutput> {
+    @Args() userProfileInput: GetUserProfileInput,
+  ): Promise<GetUserProfileOutput> {
     try {
       const user = await this.userService.findById(userProfileInput.userId);
       if (!user) throw Error();
@@ -51,7 +58,20 @@ export class UserResolver {
     try {
       return this.userService.login(loginInput);
     } catch (error) {
-      return { ok: false, error };
+      return { error, ok: false };
+    }
+  }
+
+  @UseGuards(AuthGuard)
+  @Mutation((returns) => EditUserProfileOutput)
+  async editUserProfile(
+    @AuthUser() authUser: User,
+    @Args('input') editUserProfileInput: EditUserProfileInput,
+  ): Promise<EditUserProfileOutput> {
+    try {
+      await this.userService.editUserProfile(authUser.id, editUserProfileInput);
+    } catch (error) {
+      return { error, ok: false };
     }
   }
 }

@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, UpdateResult } from 'typeorm';
 import * as jwt from 'jsonwebtoken';
 import { CreateAccountInput } from './dtos/create-account.dto';
 import { LoginInput } from './dtos/login.dto';
 import { User } from './entities/user.entity';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from 'src/jwt/jwt.service';
+import { EditUserProfileInput } from './dtos/edit-user-profile.dto';
 
 @Injectable()
 export class UserService {
@@ -58,5 +59,12 @@ export class UserService {
 
   async findById(id: number): Promise<User> {
     return this.users.findOne({ id });
+  }
+
+  async editUserProfile(
+    userId: number,
+    { email, password }: EditUserProfileInput,
+  ): Promise<UpdateResult> {
+    return this.users.update(userId, { email, password });
   }
 }
