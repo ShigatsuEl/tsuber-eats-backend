@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, UpdateResult } from 'typeorm';
-import * as jwt from 'jsonwebtoken';
 import { CreateAccountInput } from './dtos/create-account.dto';
 import { LoginInput } from './dtos/login.dto';
 import { User } from './entities/user.entity';
@@ -63,8 +62,17 @@ export class UserService {
 
   async editUserProfile(
     userId: number,
-    editUserProfileInput: EditUserProfileInput,
-  ): Promise<UpdateResult> {
-    return this.users.update(userId, { ...editUserProfileInput });
+    { email, password }: EditUserProfileInput,
+  ): Promise<User> {
+    // update 메서드는 query를 요청할 뿐, entity를 update를 하지 않는다.
+    // entity가 존재하는지 확인하지 않고 entity가 존재하길 바라면서 update 하는 것이다. 따라서 우리는 save메서드를 사용할 것이다.
+    const user = await this.users.findOne(userId);
+    if (email) {
+      user.email = email;
+    }
+    if (password) {
+      user.password = password;
+    }
+    return this.users.save(user);
   }
 }
