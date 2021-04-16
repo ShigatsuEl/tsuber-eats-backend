@@ -51,7 +51,11 @@ export class UserService {
     // check if the password is correct
     // make a JWT and give it to the user
     try {
-      const user = await this.users.findOne({ email });
+      // select 옵션에서 지정된 것만 결과값으로 나온다.
+      const user = await this.users.findOne(
+        { email },
+        { select: ['id', 'password'] },
+      );
       if (!user) {
         return { ok: false, error: 'User not found' };
       }
@@ -89,14 +93,20 @@ export class UserService {
   }
 
   async verifyEmail(code: string): Promise<boolean> {
-    const verification = await this.verifications.findOne(
-      { code },
-      { relations: ['user'] },
-    );
-    if (verification) {
-      verification.user.verified = true;
-      this.users.save(verification.user);
+    try {
+      // findOne 메서드의 옵션 relations를 user field를 연결해줘야 User를 relate해준다.
+      const verification = await this.verifications.findOne(
+        { code },
+        { relations: ['user'] },
+      );
+      if (verification) {
+        verification.user.verified = true;
+        this.users.save(verification.user);
+        return true;
+      }
+      throw new Error();
+    } catch (error) {
+      return false;
     }
-    return false;
   }
 }
