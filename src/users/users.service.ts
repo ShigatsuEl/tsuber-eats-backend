@@ -16,6 +16,7 @@ import { Verification } from './entities/verification.entity';
 import { JwtService } from 'src/jwt/jwt.service';
 import { VerifyEmailOutput } from './dtos/verify-email.dto';
 import { GetUserProfileOutput } from './dtos/get-user-profile.dto';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class UserService {
@@ -23,8 +24,8 @@ export class UserService {
     @InjectRepository(User) private readonly users: Repository<User>,
     @InjectRepository(Verification)
     private readonly verifications: Repository<Verification>,
-    private readonly config: ConfigService,
     private readonly jwtService: JwtService,
+    private readonly mailService: MailService,
   ) {}
 
   async createAccount({
@@ -40,11 +41,12 @@ export class UserService {
       const user = await this.users.save(
         this.users.create({ email, password, role }),
       );
-      await this.verifications.save(
+      const verification = await this.verifications.save(
         this.verifications.create({
           user,
         }),
       );
+      this.mailService.sendVerificationEmail(user.email, verification.code);
       return { ok: true };
     } catch (error) {
       return { ok: false, error: "Couldn't create account" };
@@ -93,11 +95,15 @@ export class UserService {
     // update 메서드는 query를 요청할 뿐, entity를 update를 하지 않는다.
     // entity가 존재하는지 확인하지 않고 entity가 존재하길 바라면서 update 하는 것이다. 따라서 우리는 save메서드를 사용할 것이다.
     try {
+      console.log(userId, email, password);
       const user = await this.users.findOne(userId);
       if (email) {
         user.email = email;
         user.verified = false;
-        await this.verifications.save(this.verifications.create({ user }));
+        const verification = await this.verifications.save(
+          this.verifications.create({ user }),
+        );
+        this.mailService.sendVerificationEmail(user.email, verification.code);
       }
       if (password) {
         user.password = password;
