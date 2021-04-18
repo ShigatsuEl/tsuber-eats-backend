@@ -34,58 +34,34 @@ export class UserResolver {
   async getUserProfile(
     @Args() userProfileInput: GetUserProfileInput,
   ): Promise<GetUserProfileOutput> {
-    try {
-      const user = await this.userService.findById(userProfileInput.userId);
-      if (!user) throw Error();
-      return { ok: true, user };
-    } catch (error) {
-      return { error: 'User not found', ok: false };
-    }
+    return this.userService.findById(userProfileInput.userId);
   }
 
   @Mutation((returns) => CreateAccountOutput)
-  async createAccount(
+  createAccount(
     @Args('input') createAccountInput: CreateAccountInput,
   ): Promise<CreateAccountOutput> {
-    try {
-      return this.userService.createAccount(createAccountInput);
-    } catch (error) {
-      return { error, ok: false };
-    }
+    return this.userService.createAccount(createAccountInput);
   }
 
   @Mutation((returns) => LoginOutput)
-  async login(@Args('input') loginInput: LoginInput): Promise<LoginOutput> {
-    try {
-      return this.userService.login(loginInput);
-    } catch (error) {
-      return { error, ok: false };
-    }
+  login(@Args('input') loginInput: LoginInput): Promise<LoginOutput> {
+    return this.userService.login(loginInput);
   }
 
   @UseGuards(AuthGuard)
   @Mutation((returns) => EditUserProfileOutput)
-  async editUserProfile(
+  editUserProfile(
     @AuthUser() authUser: User,
     @Args('input') editUserProfileInput: EditUserProfileInput,
   ): Promise<EditUserProfileOutput> {
-    try {
-      await this.userService.editUserProfile(authUser.id, editUserProfileInput);
-      return { ok: true };
-    } catch (error) {
-      return { error, ok: false };
-    }
+    return this.userService.editUserProfile(authUser.id, editUserProfileInput);
   }
 
   @Mutation((returns) => VerifyEmailOutput)
-  async verifyEmail(
+  verifyEmail(
     @Args('input') verifyEmailInput: VerifyEmailInput,
   ): Promise<VerifyEmailOutput> {
-    try {
-      await this.userService.verifyEmail(verifyEmailInput.code);
-      return { ok: true };
-    } catch (error) {
-      return { error, ok: false };
-    }
+    return this.userService.verifyEmail(verifyEmailInput.code);
   }
 }

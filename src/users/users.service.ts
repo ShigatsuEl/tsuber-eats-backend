@@ -2,12 +2,20 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CreateAccountInput } from './dtos/create-account.dto';
-import { EditUserProfileInput } from './dtos/edit-user-profile.dto';
-import { LoginInput } from './dtos/login.dto';
+import {
+  CreateAccountInput,
+  CreateAccountOutput,
+} from './dtos/create-account.dto';
+import {
+  EditUserProfileInput,
+  EditUserProfileOutput,
+} from './dtos/edit-user-profile.dto';
+import { LoginInput, LoginOutput } from './dtos/login.dto';
 import { User } from './entities/user.entity';
 import { Verification } from './entities/verification.entity';
 import { JwtService } from 'src/jwt/jwt.service';
+import { VerifyEmailOutput } from './dtos/verify-email.dto';
+import { GetUserProfileOutput } from './dtos/get-user-profile.dto';
 
 @Injectable()
 export class UserService {
@@ -23,7 +31,7 @@ export class UserService {
     email,
     password,
     role,
-  }: CreateAccountInput): Promise<{ ok: boolean; error?: string }> {
+  }: CreateAccountInput): Promise<CreateAccountOutput> {
     try {
       const userExist = await this.users.findOne({ email });
       if (userExist) {
@@ -43,10 +51,7 @@ export class UserService {
     }
   }
 
-  async login({
-    email,
-    password,
-  }: LoginInput): Promise<{ ok: boolean; error?: string; token?: string }> {
+  async login({ email, password }: LoginInput): Promise<LoginOutput> {
     // find the user with the email
     // check if the password is correct
     // make a JWT and give it to the user
@@ -70,29 +75,41 @@ export class UserService {
     }
   }
 
-  async findById(id: number): Promise<User> {
-    return this.users.findOne({ id });
+  async findById(id: number): Promise<GetUserProfileOutput> {
+    try {
+      const user = await this.users.findOne({ id });
+      if (user) {
+        return { ok: true, user };
+      }
+    } catch (error) {
+      return { ok: false, error: 'User not found' };
+    }
   }
 
   async editUserProfile(
     userId: number,
     { email, password }: EditUserProfileInput,
-  ): Promise<User> {
+  ): Promise<EditUserProfileOutput> {
     // update 메서드는 query를 요청할 뿐, entity를 update를 하지 않는다.
     // entity가 존재하는지 확인하지 않고 entity가 존재하길 바라면서 update 하는 것이다. 따라서 우리는 save메서드를 사용할 것이다.
-    const user = await this.users.findOne(userId);
-    if (email) {
-      user.email = email;
-      user.verified = false;
-      await this.verifications.save(this.verifications.create({ user }));
+    try {
+      const user = await this.users.findOne(userId);
+      if (email) {
+        user.email = email;
+        user.verified = false;
+        await this.verifications.save(this.verifications.create({ user }));
+      }
+      if (password) {
+        user.password = password;
+      }
+      await this.users.save(user);
+      return { ok: true };
+    } catch (error) {
+      return { ok: false, error: 'Failed to edit profile' };
     }
-    if (password) {
-      user.password = password;
-    }
-    return this.users.save(user);
   }
 
-  async verifyEmail(code: string): Promise<boolean> {
+  async verifyEmail(code: string): Promise<VerifyEmailOutput> {
     try {
       // findOne 메서드의 옵션 relations를 user field를 연결해줘야 User를 relate해준다.
       const verification = await this.verifications.findOne(
@@ -102,11 +119,11 @@ export class UserService {
       if (verification) {
         verification.user.verified = true;
         this.users.save(verification.user);
-        return true;
+        return { ok: true };
       }
-      throw new Error();
+      return { ok: false, error: 'Verification not found' };
     } catch (error) {
-      return false;
+      return { ok: false, error: 'Failed to verify email' };
     }
   }
 }
