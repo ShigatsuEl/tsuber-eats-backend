@@ -128,7 +128,22 @@ describe('UserService', () => {
       expect(result).toEqual({ ok: false, error: "Couldn't create account" });
     });
   });
-  it.todo('login');
+
+  describe('login', () => {
+    const loginArgs = {
+      email: '',
+      password: '',
+    };
+
+    it('should fail if user does not exist', async () => {
+      usersRepository.findOne.mockResolvedValue(null);
+
+      const result = await service.login(loginArgs);
+
+      expect(result).toEqual({ ok: false, error: 'User not found' });
+    });
+  });
+
   it.todo('findById');
   it.todo('editUserProfile');
   it.todo('verifyEmail');
