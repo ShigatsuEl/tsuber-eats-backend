@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import {
@@ -93,7 +92,6 @@ export class UserService {
     // update 메서드는 query를 요청할 뿐, entity를 update를 하지 않는다.
     // entity가 존재하는지 확인하지 않고 entity가 존재하길 바라면서 update 하는 것이다. 따라서 우리는 save메서드를 사용할 것이다.
     try {
-      console.log(userId, email, password);
       const user = await this.users.findOne(userId);
       if (email) {
         user.email = email;
