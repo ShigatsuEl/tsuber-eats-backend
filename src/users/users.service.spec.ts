@@ -15,14 +15,14 @@ const mockRepository = () => ({
   create: jest.fn(),
 });
 
-const mockJwtService = {
+const mockJwtService = () => ({
   sign: jest.fn(() => 'signed-token'),
   verify: jest.fn(),
-};
+});
 
-const mockMailService = {
+const mockMailService = () => ({
   sendVerificationEmail: jest.fn(),
-};
+});
 
 type MockRepository<T = any> = Partial<Record<keyof Repository<T>, jest.Mock>>;
 
@@ -47,11 +47,11 @@ describe('UserService', () => {
         },
         {
           provide: JwtService,
-          useValue: mockJwtService,
+          useValue: mockJwtService(),
         },
         {
           provide: MailService,
-          useValue: mockMailService,
+          useValue: mockMailService(),
         },
       ],
     }).compile();
@@ -238,10 +238,46 @@ describe('UserService', () => {
       expect(verificationsRepository.save).toHaveBeenCalledWith(
         newVerification,
       );
+      expect(mailService.sendVerificationEmail).toHaveBeenCalledTimes(1);
       expect(mailService.sendVerificationEmail).toHaveBeenCalledWith(
         newUser.email,
         newVerification.code,
       );
+    });
+
+    it('should change password', async () => {
+      const editUserProfileArgs = {
+        userId: 1,
+        input: { password: 'newPassword' },
+      };
+
+      usersRepository.findOne.mockResolvedValue({ password: 'oldPassword' });
+
+      const result = await service.editUserProfile(
+        editUserProfileArgs.userId,
+        editUserProfileArgs.input,
+      );
+
+      expect(usersRepository.save).toHaveBeenCalledTimes(1);
+      expect(usersRepository.save).toHaveBeenCalledWith(
+        editUserProfileArgs.input,
+      );
+      expect(result).toEqual({ ok: true });
+    });
+
+    it('should fail on exception', async () => {
+      const editUserProfileArgs = {
+        userId: 1,
+        input: { email: 'newUser@gmail.com', password: 'newPassword' },
+      };
+      usersRepository.findOne.mockRejectedValue(new Error());
+
+      const result = await service.editUserProfile(
+        editUserProfileArgs.userId,
+        editUserProfileArgs.input,
+      );
+
+      expect(result).toEqual({ ok: false, error: 'Failed to edit profile' });
     });
   });
 
