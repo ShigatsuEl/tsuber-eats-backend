@@ -10,6 +10,7 @@ import { UserService } from './users.service';
 // 함수를 호출함으로써 User와 Verification은 서로 다른 Repository를 가지게 된다.
 const mockRepository = () => ({
   findOne: jest.fn(),
+  findOneOrFail: jest.fn(),
   save: jest.fn(),
   create: jest.fn(),
 });
@@ -179,7 +180,25 @@ describe('UserService', () => {
     });
   });
 
-  it.todo('findById');
+  describe('findById', () => {
+    const findByIdArgs = { id: 1 };
+    it('should find an existing user', async () => {
+      usersRepository.findOneOrFail.mockResolvedValue(findByIdArgs);
+
+      const result = await service.findById(1);
+
+      expect(result).toEqual({ ok: true, user: findByIdArgs });
+    });
+
+    it('should fail if no user is found', async () => {
+      usersRepository.findOneOrFail.mockRejectedValue(new Error());
+
+      const result = await service.findById(1);
+
+      expect(result).toEqual({ ok: false, error: 'User not found' });
+    });
+  });
+
   it.todo('editUserProfile');
   it.todo('verifyEmail');
 });
