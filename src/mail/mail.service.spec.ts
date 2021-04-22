@@ -34,5 +34,29 @@ describe('MailService', () => {
   });
 
   it.todo('sendEmail');
-  it.todo('sendVerificationEmail');
+
+  describe('sendVerificationEmail', () => {
+    it('should call sendEmail', () => {
+      const sendVerificationEmailArgs = {
+        email: 'email',
+        code: 'code',
+      };
+
+      jest.spyOn(service, 'sendEmail').mockImplementation(async () => {});
+      service.sendVerificationEmail(
+        sendVerificationEmailArgs.email,
+        sendVerificationEmailArgs.code,
+      );
+
+      expect(service.sendEmail).toHaveBeenCalledTimes(1);
+      expect(service.sendEmail).toHaveBeenCalledWith(
+        'Verify Your Email',
+        'tsuber-eats-template',
+        [
+          { key: 'code', value: sendVerificationEmailArgs.code },
+          { key: 'username', value: sendVerificationEmailArgs.email },
+        ],
+      );
+    });
+  });
 });
