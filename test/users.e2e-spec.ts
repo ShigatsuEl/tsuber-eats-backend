@@ -6,6 +6,11 @@ import { getConnection } from 'typeorm';
 
 const GRAPHQL_ENDPOINT = '/graphql';
 
+const testUser = {
+  email: 'shigatsu@gmail.com',
+  password: 'kimiuso',
+};
+
 jest.mock('got', () => {
   return {
     post: jest.fn(),
@@ -14,6 +19,7 @@ jest.mock('got', () => {
 
 describe('UserModule (e2e)', () => {
   let app: INestApplication;
+  let jwtToken: string;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -30,7 +36,6 @@ describe('UserModule (e2e)', () => {
   });
 
   describe('createAccount', () => {
-    const EMAIL = 'shigatsu@gmail.com';
     it('should create account', () => {
       return request(app.getHttpServer())
         .post(GRAPHQL_ENDPOINT)
@@ -38,8 +43,8 @@ describe('UserModule (e2e)', () => {
           query: `
         mutation {
           createAccount(input: {
-            email: "${EMAIL}",
-            password: "kimiuso",
+            email: "${testUser.email}",
+            password: "${testUser.password}",
             role: Owner
           }) {
             ok
@@ -62,8 +67,8 @@ describe('UserModule (e2e)', () => {
           query: `
           mutation {
             createAccount(input: {
-              email: "${EMAIL}",
-              password: "kimiuso",
+              email: "${testUser.email}",
+              password: "${testUser.password}",
               role: Owner
             }) {
             ok
@@ -82,8 +87,70 @@ describe('UserModule (e2e)', () => {
     });
   });
 
+  describe('login', () => {
+    it('should login with correct credentials', () => {
+      return request(app.getHttpServer())
+        .post(GRAPHQL_ENDPOINT)
+        .send({
+          query: `
+        mutation {
+          login(input: {
+            email: "${testUser.email}",
+            password: "${testUser.password}",
+          }) {
+            ok
+            error
+            token
+          }
+        }
+        `,
+        })
+        .expect(200)
+        .expect((res) => {
+          const {
+            body: {
+              data: { login },
+            },
+          } = res;
+          expect(login.ok).toBe(true);
+          expect(login.error).toBe(null);
+          expect(login.token).toEqual(expect.any(String));
+          jwtToken = login.token;
+        });
+    });
+
+    it('should not be able to login with wrong credentials', () => {
+      return request(app.getHttpServer())
+        .post(GRAPHQL_ENDPOINT)
+        .send({
+          query: `
+        mutation {
+          login(input: {
+            email: "${testUser.email}",
+            password: "wrongPassword",
+          }) {
+            ok
+            error
+            token
+          }
+        }
+        `,
+        })
+        .expect(200)
+        .expect((res) => {
+          const {
+            body: {
+              data: { login },
+            },
+          } = res;
+          expect(login.ok).toBe(false);
+          expect(login.error).toBe('Password does not match');
+          expect(login.token).toBe(null);
+        });
+    });
+  });
+
   it.todo('getUserProfile');
-  it.todo('login');
   it.todo('loginUser');
   it.todo('verifyEmail');
   it.todo('editUserProfile');
