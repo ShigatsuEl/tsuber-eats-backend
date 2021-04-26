@@ -338,6 +338,36 @@ describe('UserModule (e2e)', () => {
           expect(email).toBe(NEW_EMAIL);
         });
     });
+
+    it('should change password', () => {
+      return request(app.getHttpServer())
+        .post(GRAPHQL_ENDPOINT)
+        .set('X-JWT', jwtToken)
+        .send({
+          query: `
+        mutation {
+          editUserProfile(input: {
+            password: "1234"
+          }) {
+            ok
+            error
+          }
+        }
+        `,
+        })
+        .expect(200)
+        .expect((res) => {
+          const {
+            body: {
+              data: {
+                editUserProfile: { ok, error },
+              },
+            },
+          } = res;
+          expect(ok).toBe(true);
+          expect(error).toBe(null);
+        });
+    });
   });
 
   it.todo('verifyEmail');
