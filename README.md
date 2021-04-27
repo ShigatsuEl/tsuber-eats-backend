@@ -12,6 +12,13 @@ The Backend of Tsuber Eats
 - password
 - role(client|owner|delivery)
 
+## Restaurant Entity
+
+- name
+- category
+- address
+- coverImage
+
 ## User CRUD
 
 - Create Account
