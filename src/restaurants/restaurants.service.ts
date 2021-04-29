@@ -23,6 +23,18 @@ export class RestaurantService {
     private readonly categories: Repository<Category>,
   ) {}
 
+  async getOrCreateCategory(name: string): Promise<Category> {
+    const categoryName = name.trim().toLowerCase();
+    const categorySlug = categoryName.replace(/ /g, '-');
+    let category = await this.categories.findOne({ slug: categorySlug });
+    if (!category) {
+      category = await this.categories.save(
+        this.categories.create({ name: categoryName, slug: categorySlug }),
+      );
+    }
+    return category;
+  }
+
   async createResataurant(
     owner: User,
     createRestaurantInput: CreateRestaurantInput,
@@ -31,16 +43,9 @@ export class RestaurantService {
       // create 메서드는 타입스크립트가 가지고 있을 뿐 DB에 저장하지 않는다.
       // DB에 저장하기 위해서는 save 메서드를 사용한다.
       const newRestaurant = this.restaurants.create(createRestaurantInput);
-      const categoryName = createRestaurantInput.categoryName
-        .trim()
-        .toLowerCase();
-      const categorySlug = categoryName.replace(/ /g, '-');
-      let category = await this.categories.findOne({ slug: categorySlug });
-      if (!category) {
-        category = await this.categories.save(
-          this.categories.create({ name: categoryName, slug: categorySlug }),
-        );
-      }
+      const category = await this.getOrCreateCategory(
+        createRestaurantInput.categoryName,
+      );
       newRestaurant.category = category;
       newRestaurant.owner = owner;
       await this.restaurants.save(newRestaurant);
@@ -53,5 +58,23 @@ export class RestaurantService {
   async editRestaurant(
     owner: User,
     editRestaurantInput: EditRestaurantInput,
-  ): Promise<EditRestaurantOutput> {}
+  ): Promise<EditRestaurantOutput> {
+    try {
+      const restaurant = await this.restaurants.findOne(
+        editRestaurantInput.restaurantId,
+      );
+      if (!restaurant) {
+        return { ok: false, error: 'Restaurant not found' };
+      }
+      if (owner.id !== restaurant.ownerId) {
+        return {
+          ok: false,
+          error: 'You can not edit a restaurant that you do not own',
+        };
+      }
+      return { ok: true };
+    } catch (error) {
+      return { ok: false, error: 'Could not edit Restaurant' };
+    }
+  }
 }
