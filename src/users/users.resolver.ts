@@ -18,19 +18,22 @@ import {
 import { VerifyEmailInput, VerifyEmailOutput } from './dtos/verify-email.dto';
 import { User } from './entities/user.entity';
 import { UserService } from './users.service';
+import { Role } from 'src/auth/role.decorator';
 
 @Resolver(() => User)
 export class UserResolver {
   constructor(private readonly userService: UserService) {}
 
+  // 어떠한 MetaData가 없다면 인증이 필요없는 public resolver를 의미
+  // MetaData가 있다면 인증단계를 거쳐야 하며 그 후 role을 확인함을 의미
   @Query((returns) => User)
-  @UseGuards(AuthGuard)
+  @Role(['Any'])
   loginUser(@AuthUser() authUser: User) {
     return authUser;
   }
 
   @Query((returns) => GetUserProfileOutput)
-  @UseGuards(AuthGuard)
+  @Role(['Any'])
   async getUserProfile(
     @Args() userProfileInput: GetUserProfileInput,
   ): Promise<GetUserProfileOutput> {
@@ -49,8 +52,8 @@ export class UserResolver {
     return this.userService.login(loginInput);
   }
 
-  @UseGuards(AuthGuard)
   @Mutation((returns) => EditUserProfileOutput)
+  @Role(['Any'])
   editUserProfile(
     @AuthUser() authUser: User,
     @Args('input') editUserProfileInput: EditUserProfileInput,
