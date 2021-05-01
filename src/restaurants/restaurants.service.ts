@@ -15,6 +15,7 @@ import {
   EditRestaurantOutput,
 } from './dtos/edit-restaurant.dto';
 import { GetCategoriesOutput } from './dtos/get-categories.dto';
+import { GetCategoryInput, GetCategoryOutput } from './dtos/get-category.dto';
 import { Category } from './entities/category.entity';
 import { Restaurant } from './entities/restaurant.entity';
 import { CategoryRepository } from './repositories/category.repository';
@@ -109,5 +110,18 @@ export class RestaurantService {
 
   countRestaurants(category: Category) {
     return this.restaurants.count({ category });
+  }
+
+  async getCategory({ slug }: GetCategoryInput): Promise<GetCategoryOutput> {
+    try {
+      const category = await this.categories.findOne(
+        { slug },
+        { relations: ['restaurants'] },
+      );
+      if (!category) return { ok: false, error: 'Category not found' };
+      return { ok: false, category };
+    } catch (error) {
+      return { ok: false, error: 'Can not load category' };
+    }
   }
 }
