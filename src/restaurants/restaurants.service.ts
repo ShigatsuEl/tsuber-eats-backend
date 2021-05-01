@@ -17,13 +17,14 @@ import {
 import { Category } from './entities/category.entity';
 import { Restaurant } from './entities/restaurant.entity';
 import { CategoryRepository } from './repositories/category.repository';
+import { RestaurantRepository } from './repositories/restaurant.repository';
 
 @Injectable()
 export class RestaurantService {
   constructor(
     // @InjectRepository가 getRepository의 역할을 하며 Restaurant Entity를 inject함으로써 Repository를 가져와 NestJS TypeORM을 사용할 수 있는 것이다.
     @InjectRepository(Restaurant)
-    private readonly restaurants: Repository<Restaurant>,
+    private readonly restaurants: RestaurantRepository,
     private readonly categories: CategoryRepository,
   ) {}
 
@@ -52,19 +53,13 @@ export class RestaurantService {
     editRestaurantInput: EditRestaurantInput,
   ): Promise<EditRestaurantOutput> {
     try {
-      const restaurant = await this.restaurants.findOne(
+      const check = await this.restaurants.checkOne(
+        owner.id,
         editRestaurantInput.restaurantId,
+        'edit',
       );
       let category: Category = null;
-      if (!restaurant) {
-        return { ok: false, error: 'Restaurant not found' };
-      }
-      if (owner.id !== restaurant.ownerId) {
-        return {
-          ok: false,
-          error: 'You can not edit a restaurant that you do not own',
-        };
-      }
+      if (check) return { ...check };
       if (editRestaurantInput.categoryName) {
         category = await this.categories.getOrCreate(
           editRestaurantInput.categoryName,
@@ -89,16 +84,12 @@ export class RestaurantService {
     { restaurantId }: DeleteRestaurantInput,
   ): Promise<DeleteRestaurantOutput> {
     try {
-      const restaurant = await this.restaurants.findOne(restaurantId);
-      if (!restaurant) {
-        return { ok: false, error: 'Restaurant not found' };
-      }
-      if (owner.id !== restaurant.ownerId) {
-        return {
-          ok: false,
-          error: 'You can not delete a restaurant that you do not own',
-        };
-      }
+      const check = await this.restaurants.checkOne(
+        owner.id,
+        restaurantId,
+        'delete',
+      );
+      if (check) return { ...check };
       await this.restaurants.delete(restaurantId);
       return { ok: true };
     } catch (error) {
