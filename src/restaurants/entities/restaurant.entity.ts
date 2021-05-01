@@ -22,7 +22,7 @@ export class Restaurant extends Core {
   @IsString()
   coverImg: string;
 
-  @Field((type) => String, { defaultValue: '서울' })
+  @Field((type) => String)
   @Column()
   @IsString()
   address: string;

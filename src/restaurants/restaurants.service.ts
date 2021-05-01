@@ -66,6 +66,7 @@ export class RestaurantService {
           editRestaurantInput.categoryName,
         );
       }
+      // save 메서드에서 id를 보내지 않을 경우, 새로운 Entity를 생성하므로 update하기 위해선 꼭 포함시킨다
       await this.restaurants.save([
         {
           id: editRestaurantInput.restaurantId,
