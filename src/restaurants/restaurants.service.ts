@@ -16,6 +16,10 @@ import {
 import { GetCategoriesOutput } from './dtos/get-categories.dto';
 import { GetCategoryInput, GetCategoryOutput } from './dtos/get-category.dto';
 import {
+  GetRestaurantInput,
+  GetRestaurantOutput,
+} from './dtos/get-restaurant.dto';
+import {
   GetRestaurantsInput,
   GetRestaurantsOutput,
 } from './dtos/get-restaurants.dto';
@@ -49,6 +53,18 @@ export class RestaurantService {
       };
     } catch (error) {
       return { ok: false, error: 'Could not load restaurants' };
+    }
+  }
+
+  async getRestaurant({
+    restaurantId,
+  }: GetRestaurantInput): Promise<GetRestaurantOutput> {
+    try {
+      const restaurant = await this.restaurants.findOne(restaurantId);
+      if (!restaurant) return { ok: false, error: 'Restaurant not found' };
+      return { ok: true, restaurant };
+    } catch (error) {
+      return { ok: false, error: 'Could not load restaurant' };
     }
   }
 

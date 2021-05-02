@@ -25,6 +25,10 @@ import {
 import { GetCategoriesOutput } from './dtos/get-categories.dto';
 import { GetCategoryInput, GetCategoryOutput } from './dtos/get-category.dto';
 import {
+  GetRestaurantInput,
+  GetRestaurantOutput,
+} from './dtos/get-restaurant.dto';
+import {
   GetRestaurantsInput,
   GetRestaurantsOutput,
 } from './dtos/get-restaurants.dto';
@@ -42,6 +46,13 @@ export class RestaurantResolver {
     @Args('input') getRestaurantsInput: GetRestaurantsInput,
   ): Promise<GetRestaurantsOutput> {
     return this.restaurantService.getAllRestaurants(getRestaurantsInput);
+  }
+
+  @Query((returns) => GetRestaurantOutput)
+  getRestaurant(
+    @Args('input') getRestaurantInput: GetRestaurantInput,
+  ): Promise<GetRestaurantOutput> {
+    return this.restaurantService.getRestaurant(getRestaurantInput);
   }
 
   @Mutation((returns) => CreateRestaurantOutput)
