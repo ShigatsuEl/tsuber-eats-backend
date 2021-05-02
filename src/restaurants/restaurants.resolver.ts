@@ -24,6 +24,10 @@ import {
 } from './dtos/edit-restaurant.dto';
 import { GetCategoriesOutput } from './dtos/get-categories.dto';
 import { GetCategoryInput, GetCategoryOutput } from './dtos/get-category.dto';
+import {
+  GetRestaurantsInput,
+  GetRestaurantsOutput,
+} from './dtos/get-restaurants.dto';
 import { Category } from './entities/category.entity';
 import { Restaurant } from './entities/restaurant.entity';
 import { RestaurantService } from './restaurants.service';
@@ -32,6 +36,13 @@ import { RestaurantService } from './restaurants.service';
 export class RestaurantResolver {
   // Provider에 RestaurantService를 추가함으로써 RestaurantService를 Resolver에서 사용할 수 있다.
   constructor(private readonly restaurantService: RestaurantService) {}
+
+  @Query((returns) => GetRestaurantsOutput)
+  getAllRestaurants(
+    @Args('input') getRestaurantsInput: GetRestaurantsInput,
+  ): Promise<GetRestaurantsOutput> {
+    return this.restaurantService.getAllRestaurants(getRestaurantsInput);
+  }
 
   @Mutation((returns) => CreateRestaurantOutput)
   @Role(['Owner'])
