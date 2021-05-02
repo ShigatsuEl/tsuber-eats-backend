@@ -40,3 +40,8 @@ The Backend of Tsuber Eats
 - Create Dish
 - Edit Dish
 - Delete Dish
+
+- Orders CRUD
+- Orders Subscription (Onwer | Customer | Delivery)
+
+- Payments (CRON)
