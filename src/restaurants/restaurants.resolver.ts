@@ -83,7 +83,7 @@ export class CategoryResolver {
 
   @Query((type) => GetCategoryOutput)
   getCategory(
-    @Args() getCategoryInput: GetCategoryInput,
+    @Args('input') getCategoryInput: GetCategoryInput,
   ): Promise<GetCategoryOutput> {
     return this.restaurantService.getCategory(getCategoryInput);
   }
