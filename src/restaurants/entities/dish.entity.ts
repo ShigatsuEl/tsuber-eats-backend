@@ -4,6 +4,19 @@ import { Core } from 'src/common/entities/core.entity';
 import { Column, Entity, ManyToOne, RelationId } from 'typeorm';
 import { Restaurant } from './restaurant.entity';
 
+@InputType('DishOptionInputType', { isAbstract: true })
+@ObjectType()
+class DishOption {
+  @Field((type) => String)
+  name: string;
+
+  @Field((type) => [String], { nullable: true })
+  choices?: string[];
+
+  @Field((type) => Int)
+  extra: number;
+}
+
 @InputType('DishInputType', { isAbstract: true })
 @ObjectType()
 @Entity()
@@ -19,10 +32,10 @@ export class Dish extends Core {
   @IsNumber()
   price: number;
 
-  @Field((type) => String)
-  @Column()
+  @Field((type) => String, { nullable: true })
+  @Column({ nullable: true })
   @IsString()
-  photo: string;
+  photo?: string;
 
   @Field((type) => String)
   @Column()
@@ -31,7 +44,7 @@ export class Dish extends Core {
   description: string;
 
   @Field((type) => Restaurant, { nullable: true })
-  @ManyToOne((type) => Restaurant, (restaurant) => restaurant.dish, {
+  @ManyToOne((type) => Restaurant, (restaurant) => restaurant.menu, {
     onDelete: 'CASCADE',
   })
   restaurant: Restaurant;
@@ -39,4 +52,8 @@ export class Dish extends Core {
   // restaurant와 연결된 relationship의 모든 정보를 불러오는 것보다 id만 불러와 확인할 수 있도록 한다
   @RelationId((dish: Dish) => dish.restaurant)
   restaurantId: number;
+
+  @Field((type) => [DishOption], { nullable: true })
+  @Column({ type: 'json', nullable: true })
+  options?: DishOption[];
 }

@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { Raw } from 'typeorm';
+import { CreateDishInput, CreateDishOutput } from './dtos/create-dish.dto';
 import {
   CreateRestaurantInput,
   CreateRestaurantOutput,
@@ -65,7 +66,9 @@ export class RestaurantService {
     restaurantId,
   }: GetRestaurantInput): Promise<GetRestaurantOutput> {
     try {
-      const restaurant = await this.restaurants.findOne(restaurantId);
+      const restaurant = await this.restaurants.findOne(restaurantId, {
+        relations: ['menu'],
+      });
       if (!restaurant) return { ok: false, error: 'Restaurant not found' };
       return { ok: true, restaurant };
     } catch (error) {
@@ -200,6 +203,16 @@ export class RestaurantService {
       };
     } catch (error) {
       return { ok: false, error: 'Can not load category' };
+    }
+  }
+
+  async createDish(
+    owner: User,
+    createDishInput: CreateDishInput,
+  ): Promise<CreateDishOutput> {
+    try {
+    } catch (error) {
+      return { ok: false };
     }
   }
 }
