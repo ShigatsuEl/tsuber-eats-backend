@@ -7,10 +7,12 @@ import {
   CreateRestaurantInput,
   CreateRestaurantOutput,
 } from './dtos/create-restaurant.dto';
+import { DeleteDishInput, DeleteDishOutput } from './dtos/delete-dish.dto';
 import {
   DeleteRestaurantInput,
   DeleteRestaurantOutput,
 } from './dtos/delete-restaurant.dto';
+import { EditDishInput, EditDishOutput } from './dtos/edit-dish.dto';
 import {
   EditRestaurantInput,
   EditRestaurantOutput,
@@ -225,13 +227,61 @@ export class RestaurantService {
           error: `You can not get a restaurant that you do not own`,
         };
       }
-      const dish = await this.dishes.save(
+      await this.dishes.save(
         this.dishes.create({ ...createDishInput, restaurant }),
       );
-      console.log(dish);
       return { ok: true };
     } catch (error) {
       return { ok: false, error: 'Could not create dish' };
+    }
+  }
+
+  async editDish(
+    owner: User,
+    editDishInput: EditDishInput,
+  ): Promise<EditDishOutput> {
+    try {
+      const dish = await this.dishes.findOne(editDishInput.dishId, {
+        relations: ['restaurant'],
+      });
+      if (!dish) return { ok: false, error: 'Dish not found' };
+      if (owner.id !== dish.restaurant.ownerId) {
+        return {
+          ok: false,
+          error: 'You can not delete a dish that you do not own',
+        };
+      }
+      await this.dishes.save([
+        {
+          id: editDishInput.dishId,
+          ...editDishInput,
+        },
+      ]);
+      return { ok: true };
+    } catch (error) {
+      return { ok: false, error: 'Could not delete dish' };
+    }
+  }
+
+  async deleteDish(
+    owner: User,
+    { dishId }: DeleteDishInput,
+  ): Promise<DeleteDishOutput> {
+    try {
+      const dish = await this.dishes.findOne(dishId, {
+        relations: ['restaurant'],
+      });
+      if (!dish) return { ok: false, error: 'Dish not found' };
+      if (owner.id !== dish.restaurant.ownerId) {
+        return {
+          ok: false,
+          error: 'You can not delete a dish that you do not own',
+        };
+      }
+      await this.dishes.delete(dishId);
+      return { ok: true };
+    } catch (error) {
+      return { ok: false, error: 'Could not delete dish' };
     }
   }
 }
