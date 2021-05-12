@@ -5,6 +5,7 @@ import { Restaurant } from 'src/restaurants/entities/restaurant.entity';
 import { User, UserRole } from 'src/users/entities/user.entity';
 import { Repository } from 'typeorm';
 import { CreateOrderInput, CreateOrderOutput } from './dtos/create-order.dto';
+import { GetOrderInput, GetOrderOutput } from './dtos/get-order.dto';
 import { GetOrdersInput, GetOrdersOutuput } from './dtos/get-orders.dto';
 import { OrderItem } from './entities/order-item.entity';
 import { Order } from './entities/order.entity';
@@ -109,6 +110,29 @@ export class OrderService {
       return { ok: true, orders };
     } catch (error) {
       return { ok: false, error: 'Could not get orders' };
+    }
+  }
+
+  async getOrder(
+    user: User,
+    { id: orderId }: GetOrderInput,
+  ): Promise<GetOrderOutput> {
+    try {
+      const order = await this.orders.findOne(orderId, {
+        relations: ['restaurant'],
+      });
+      if (!order) return { ok: false, error: 'Order not found' };
+      let allowed = true;
+      if (user.role === UserRole.Client && order.customerId !== user.id)
+        allowed = false;
+      if (user.role === UserRole.Delivery && order.driverId !== user.id)
+        allowed = false;
+      if (user.role === UserRole.Owner && order.restaurant.ownerId !== user.id)
+        allowed = false;
+      if (!allowed) return { ok: false, error: 'You can not see that order' };
+      return { ok: true, order };
+    } catch (error) {
+      return { ok: false, error: 'Could not get Order' };
     }
   }
 }
