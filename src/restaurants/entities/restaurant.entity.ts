@@ -50,6 +50,6 @@ export class Restaurant extends Core {
   menu: Dish[];
 
   @Field((type) => [Order])
-  @ManyToOne((type) => Order, (order) => order.restaurant)
+  @OneToMany((type) => Order, (order) => order.restaurant)
   orders: Order[];
 }
