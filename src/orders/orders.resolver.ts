@@ -1,7 +1,9 @@
+import { Inject } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
 import { PubSub } from 'graphql-subscriptions';
 import { AuthUser } from 'src/auth/auth-user.decorator';
 import { Role } from 'src/auth/role.decorator';
+import { PUB_SUB } from 'src/common/common.constants';
 import { User } from 'src/users/entities/user.entity';
 import { CreateOrderInput, CreateOrderOutput } from './dtos/create-order.dto';
 import { EditOrderInput, EditOrderOutput } from './dtos/edit-order.dto';
@@ -10,11 +12,12 @@ import { GetOrdersInput, GetOrdersOutuput } from './dtos/get-orders.dto';
 import { Order } from './entities/order.entity';
 import { OrderService } from './orders.service';
 
-const pubsub = new PubSub();
-
 @Resolver(() => Order)
 export class OrderResolver {
-  constructor(private readonly orderService: OrderService) {}
+  constructor(
+    private readonly orderService: OrderService,
+    @Inject(PUB_SUB) private readonly pubSub: PubSub,
+  ) {}
 
   @Query(() => GetOrdersOutuput)
   @Role(['Any'])
@@ -54,7 +57,7 @@ export class OrderResolver {
 
   @Mutation(() => Boolean)
   subscriptionReady() {
-    pubsub.publish('subscription', {
+    this.pubSub.publish('subscription', {
       orderSubscription: 'Order Subscription is ready',
     });
     return true;
@@ -64,6 +67,6 @@ export class OrderResolver {
   @Role(['Any'])
   orderSubscription(@AuthUser() user: User) {
     console.log(user);
-    return pubsub.asyncIterator('subscription');
+    return this.pubSub.asyncIterator('subscription');
   }
 }
