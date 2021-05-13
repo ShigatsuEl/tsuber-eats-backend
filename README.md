@@ -42,6 +42,10 @@ The Backend of Tsuber Eats
 - Delete Dish
 
 - Orders CRUD
-- Orders Subscription (Onwer | Customer | Delivery)
+- Orders Subscription (Owner | Customer | Delivery)
+
+  - Pending Orders (Owner) (s: newOrder) (t:createOrder(newOrder))
+  - Order Status (Customer) (s: orderUpdate) (t:editOrder(orderUpdate))
+  - Pending Pickedup Order (Delivery) (s: orderUpdate) (t:editOrder(orderUpdate))
 
 - Payments (CRON)
