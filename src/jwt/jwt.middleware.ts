@@ -9,6 +9,8 @@ export class JwtMiddleware implements NestMiddleware {
     private readonly jwtService: JwtService,
     private readonly userService: UserService,
   ) {}
+
+  // 토큰을 찾고 디코딩한 후 유저를 찾아서 request.user에 대입한다.
   async use(req: Request, res: Response, next: NextFunction) {
     if ('x-jwt' in req.headers) {
       const token = req.headers['x-jwt'];
