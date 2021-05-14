@@ -78,7 +78,22 @@ export class OrderResolver {
     return this.pubSub.asyncIterator(NEW_COOKED_ORDER);
   }
 
-  @Subscription(() => Order)
+  @Subscription(() => Order, {
+    filter: (
+      { updateOrders: order }: { updateOrders: Order },
+      { input }: { input: UpdateOrderInput },
+      { user }: { user: User },
+    ) => {
+      if (
+        order.customerId !== user.id &&
+        order.driverId !== user.id &&
+        order.restaurant.ownerId !== user.id
+      ) {
+        return false;
+      }
+      return order.id === input.id;
+    },
+  })
   @Role(['Any'])
   updateOrders(@Args('input') updateOrderInput: UpdateOrderInput) {
     return this.pubSub.asyncIterator(NEW_UPDATED_ORDER);
