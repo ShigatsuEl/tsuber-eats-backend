@@ -4,6 +4,7 @@ import { PubSub } from 'graphql-subscriptions';
 import {
   NEW_COOKED_ORDER,
   NEW_PENDING_ORDER,
+  NEW_UPDATED_ORDER,
   PUB_SUB,
 } from 'src/common/common.constants';
 import { Dish } from 'src/restaurants/entities/dish.entity';
@@ -157,9 +158,7 @@ export class OrderService {
     { id: orderId, status }: EditOrderInput,
   ): Promise<EditOrderOutput> {
     try {
-      const order = await this.orders.findOne(orderId, {
-        relations: ['restaurant'],
-      });
+      const order = await this.orders.findOne(orderId);
       if (!order) return { ok: false, error: 'Order not found' };
       if (!this.allowedOrder(user, order))
         return { ok: false, error: 'You can not see that order' };
@@ -185,14 +184,16 @@ export class OrderService {
           ok: false,
           error: 'You do not have permission or can not edit',
         };
+      const newOrder = { ...order, status };
       await this.orders.save({ id: orderId, status });
       if (user.role === UserRole.Owner) {
         if (status === OrderStatus.Cooked) {
           this.pubSub.publish(NEW_COOKED_ORDER, {
-            cookedOrders: { ...order, status },
+            cookedOrders: newOrder,
           });
         }
       }
+      await this.pubSub.publish(NEW_UPDATED_ORDER, { updateOrders: newOrder });
       return { ok: true };
     } catch (error) {
       return { ok: false, error: 'Could not edit order' };
