@@ -19,10 +19,12 @@ export class Payment extends Core {
   @RelationId((payment: Payment) => payment.user)
   userId: number;
 
+  // 상대편에 OneToMany가 없어도 ManyToOne은 생성할 수 있다
   @Field((type) => Restaurant)
   @ManyToOne((type) => Restaurant)
   restaurant: Restaurant;
 
   @RelationId((payment: Payment) => payment.restaurant)
+  @Field((type) => Int)
   restaurantId: number;
 }
