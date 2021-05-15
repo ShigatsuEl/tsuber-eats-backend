@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { Cron, Interval, SchedulerRegistry, Timeout } from '@nestjs/schedule';
+import { Cron } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Restaurant } from 'src/restaurants/entities/restaurant.entity';
 import { User } from 'src/users/entities/user.entity';
-import { Repository } from 'typeorm';
+import { LessThan, Repository } from 'typeorm';
 import {
   CreatePaymentInput,
   CreatePaymentOutput,
@@ -54,5 +54,20 @@ export class PaymentService {
     } catch (error) {
       return { ok: false, error: 'Could not create payment' };
     }
+  }
+
+  @Cron('* * * * * *')
+  async checkPromotedRestaurants() {
+    try {
+      const restaurants = await this.restaurants.find({
+        isPromoted: true,
+        promotedUntil: LessThan(new Date()),
+      });
+      restaurants.forEach(async (restaurant) => {
+        restaurant.isPromoted = false;
+        restaurant.promotedUntil = null;
+        await this.restaurants.save(restaurant);
+      });
+    } catch (error) {}
   }
 }
