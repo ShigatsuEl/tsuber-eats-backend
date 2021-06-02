@@ -27,6 +27,7 @@ import {
 } from './dtos/edit-restaurant.dto';
 import { GetCategoriesOutput } from './dtos/get-categories.dto';
 import { GetCategoryInput, GetCategoryOutput } from './dtos/get-category.dto';
+import { GetMyRestaurantsOutput } from './dtos/get-my-restaurants.dto';
 import {
   GetRestaurantInput,
   GetRestaurantOutput,
@@ -61,6 +62,12 @@ export class RestaurantResolver {
     @Args('input') getRestaurantInput: GetRestaurantInput,
   ): Promise<GetRestaurantOutput> {
     return this.restaurantService.getRestaurant(getRestaurantInput);
+  }
+
+  @Query((returns) => GetMyRestaurantsOutput)
+  @Role(['Owner'])
+  getMyRestaurants(@AuthUser() owner: User): Promise<GetMyRestaurantsOutput> {
+    return this.restaurantService.getMyRestaurants(owner);
   }
 
   @Query((returns) => SearchRestaurantOutput)

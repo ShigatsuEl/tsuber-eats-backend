@@ -19,6 +19,7 @@ import {
 } from './dtos/edit-restaurant.dto';
 import { GetCategoriesOutput } from './dtos/get-categories.dto';
 import { GetCategoryInput, GetCategoryOutput } from './dtos/get-category.dto';
+import { GetMyRestaurantsOutput } from './dtos/get-my-restaurants.dto';
 import {
   GetRestaurantInput,
   GetRestaurantOutput,
@@ -80,6 +81,19 @@ export class RestaurantService {
       return { ok: true, restaurant };
     } catch (error) {
       return { ok: false, error: 'Could not load restaurant' };
+    }
+  }
+
+  async getMyRestaurants(owner: User): Promise<GetMyRestaurantsOutput> {
+    try {
+      const restaurants = await this.restaurants.find({ owner });
+      if (!restaurants) return { ok: false, error: 'Restaurants not found' };
+      return { ok: true, restaurants };
+    } catch (error) {
+      return {
+        ok: false,
+        error: 'Could not load restaurants',
+      };
     }
   }
 
