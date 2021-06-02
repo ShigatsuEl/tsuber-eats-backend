@@ -52,8 +52,8 @@ export class RestaurantService {
   }: GetRestaurantsInput): Promise<GetRestaurantsOutput> {
     try {
       const [restaurants, totalResults] = await this.restaurants.findAndCount({
-        skip: (page - 1) * 25,
-        take: 25,
+        skip: (page - 1) * 6,
+        take: 6,
         order: {
           isPromoted: 'DESC',
         },
@@ -61,7 +61,7 @@ export class RestaurantService {
       return {
         ok: true,
         results: restaurants,
-        totalPages: Math.ceil(totalResults / 25),
+        totalPages: Math.ceil(totalResults / 6),
         totalResults,
       };
     } catch (error) {
@@ -92,13 +92,13 @@ export class RestaurantService {
         where: {
           name: Raw((name) => `${name} ILIKE '%${query}%'`),
         },
-        skip: (page - 1) * 25,
-        take: 25,
+        skip: (page - 1) * 6,
+        take: 6,
       });
       return {
         ok: true,
         results: restaurants,
-        totalPages: Math.ceil(totalResults / 25),
+        totalPages: Math.ceil(totalResults / 6),
         totalResults,
       };
     } catch (error) {
@@ -196,8 +196,8 @@ export class RestaurantService {
       const category = await this.categories.findOne({ slug });
       const restaurants = await this.restaurants.find({
         where: { category },
-        take: 25,
-        skip: (page - 1) * 25,
+        take: 6,
+        skip: (page - 1) * 6,
         order: {
           isPromoted: 'DESC',
         },
@@ -209,7 +209,8 @@ export class RestaurantService {
         ok: false,
         results: category,
         restaurants,
-        totalPages: Math.ceil(totalResults / 25),
+        totalPages: Math.ceil(totalResults / 6),
+        totalResults,
       };
     } catch (error) {
       return { ok: false, error: 'Can not load category' };
