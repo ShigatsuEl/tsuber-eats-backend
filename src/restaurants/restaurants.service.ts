@@ -134,7 +134,7 @@ export class RestaurantService {
       newRestaurant.category = category;
       newRestaurant.owner = owner;
       await this.restaurants.save(newRestaurant);
-      return { ok: true };
+      return { ok: true, restaurantId: newRestaurant.id };
     } catch (error) {
       return { ok: false, error: 'Could not create restaurant' };
     }
