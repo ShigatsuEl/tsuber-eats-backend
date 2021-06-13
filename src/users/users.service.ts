@@ -87,7 +87,7 @@ export class UserService {
 
   async editUserProfile(
     userId: number,
-    { email, password }: EditUserProfileInput,
+    { email, password, location }: EditUserProfileInput,
   ): Promise<EditUserProfileOutput> {
     // update 메서드는 query를 요청할 뿐, entity를 update를 하지 않는다.
     // entity가 존재하는지 확인하지 않고 entity가 존재하길 바라면서 update 하는 것이다. 따라서 우리는 save메서드를 사용할 것이다.
@@ -104,6 +104,9 @@ export class UserService {
       }
       if (password) {
         user.password = password;
+      }
+      if (location) {
+        user.location = location;
       }
       await this.users.save(user);
       return { ok: true };

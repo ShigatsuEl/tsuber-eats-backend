@@ -21,6 +21,16 @@ export enum UserRole {
 
 registerEnumType(UserRole, { name: 'UserRole' });
 
+@InputType('UserLocationInputType', { isAbstract: true })
+@ObjectType()
+export class UserLocation {
+  @Field((type) => Number)
+  latitude: number;
+
+  @Field((type) => Number)
+  longitude: number;
+}
+
 @InputType('UserInputType', { isAbstract: true })
 @ObjectType()
 @Entity()
@@ -44,6 +54,14 @@ export class User extends Core {
   @Field((type) => Boolean)
   @IsBoolean()
   verified: boolean;
+
+  @Column({
+    type: 'json',
+    nullable: true,
+    default: { longitude: 0, latitude: 0 },
+  })
+  @Field((type) => UserLocation, { nullable: true })
+  location?: UserLocation;
 
   @Field((type) => [Restaurant])
   @OneToMany((type) => Restaurant, (restaurant) => restaurant.owner)

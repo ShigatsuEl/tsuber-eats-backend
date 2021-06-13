@@ -4,7 +4,7 @@ import { User } from '../entities/user.entity';
 
 @InputType()
 export class EditUserProfileInput extends PartialType(
-  PickType(User, ['email', 'password']),
+  PickType(User, ['email', 'password', 'location']),
 ) {}
 
 @ObjectType()
