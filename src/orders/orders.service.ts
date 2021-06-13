@@ -55,7 +55,7 @@ export class OrderService {
             if (dishOption.extra) {
               dishTotalPrice += dishOption.extra;
             } else {
-              const dishOptionChoice = dishOption.choices.find(
+              const dishOptionChoice = dishOption.choices?.find(
                 (optionChoice) => optionChoice.name === itemOption.choice,
               );
               if (dishOptionChoice && dishOptionChoice.extra) {
@@ -84,8 +84,9 @@ export class OrderService {
       await this.pubSub.publish(NEW_PENDING_ORDER, {
         pendingOrders: { order, ownerId: restaurant.ownerId },
       });
-      return { ok: true };
+      return { ok: true, orderId: order.id };
     } catch (error) {
+      console.log(error);
       return { ok: false, error: 'Can not create order' };
     }
   }
@@ -197,6 +198,7 @@ export class OrderService {
       await this.pubSub.publish(NEW_UPDATED_ORDER, { updateOrders: newOrder });
       return { ok: true };
     } catch (error) {
+      console.log(error);
       return { ok: false, error: 'Could not edit order' };
     }
   }

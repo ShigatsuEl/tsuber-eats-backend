@@ -66,9 +66,7 @@ import { UploadsModule } from './uploads/uploads.module';
       context: ({ req, connection }) => {
         const TOKEN_KEY = 'x-jwt';
         return {
-          token: req
-            ? req.headers[TOKEN_KEY]
-            : connection.context[TOKEN_KEY.toUpperCase()],
+          token: req ? req.headers[TOKEN_KEY] : connection.context[TOKEN_KEY],
         };
       },
     }),
