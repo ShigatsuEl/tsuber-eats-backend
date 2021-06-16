@@ -33,11 +33,14 @@ import { UploadsModule } from './uploads/uploads.module';
         DB_HOST: Joi.string().required(),
         DB_PORT: Joi.string().required(),
         DB_USERNAME: Joi.string().required(),
+        DB_PASSWORD: Joi.string().required(),
         DB_NAME: Joi.string().required(),
         PRIVATE_KEY: Joi.string().required(),
         MAILGUN_API_KEY: Joi.string().required(),
         MAILGUN_DOMAIN_NAME: Joi.string().required(),
         MAILGUN_FROM_EMAIL: Joi.string().required(),
+        AWS_ID: Joi.string().required(),
+        AWS_SECRET: Joi.string().required(),
       }),
     }),
     TypeOrmModule.forRoot({
@@ -45,6 +48,7 @@ import { UploadsModule } from './uploads/uploads.module';
       host: process.env.DB_HOST,
       port: +process.env.DB_PORT,
       username: process.env.DB_USERNAME,
+      password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
       synchronize: process.env.NODE_ENV !== 'prod',
       logging:
