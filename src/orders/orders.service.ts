@@ -176,7 +176,7 @@ export class OrderService {
       if (user.role === UserRole.Delivery) {
         if (
           status !== OrderStatus.PickedUp &&
-          status !== OrderStatus.Delevered
+          status !== OrderStatus.Delivered
         ) {
           allowedEdit = false;
         }
